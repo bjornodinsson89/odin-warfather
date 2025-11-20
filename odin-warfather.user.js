@@ -28,7 +28,7 @@
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/war-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/chain-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/targets-tab.js
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/consyole-tab.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/console-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/odin-gui-integrator.js
 // ==/UserScript==
 
