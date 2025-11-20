@@ -139,3 +139,5 @@ document.addEventListener("click", (e) => {
         if (tab) tab.removeTarget(id);
     }
 });
+
+window.WarfatherTargetsTab = WarfatherTargetsTab;
