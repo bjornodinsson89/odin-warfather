@@ -2,6 +2,8 @@
    WARFATHER — Overlay Bear Button
 ================================ */
 
+:root { --wf-css-loaded: 1;}
+
 #wf-header-button {
     position: fixed !important;
 
