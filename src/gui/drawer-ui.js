@@ -4,6 +4,7 @@
 
         constructor() {
             this.isOpen = false;
+            this.touchLock = false; // prevents Torn auto-close
         }
 
         init() {
@@ -16,9 +17,6 @@
             WF_LOG("[Drawer] init() complete");
         }
 
-        // -------------------------------------------------
-        // BUTTON — floating round button (center top)
-        // -------------------------------------------------
         injectButton() {
             const btn = document.createElement("div");
             btn.id = "wf-header-button";
@@ -42,73 +40,69 @@
                 border: 2px solid #ff3c3c;
                 box-shadow: 0px 0px 12px #000;
             `;
+
             btn.addEventListener("click", () => this.toggle());
-            btn.addEventListener("touchstart", () => this.toggle());
+            btn.addEventListener("touchend", () => this.toggle());
 
             document.body.appendChild(btn);
         }
 
-        // -------------------------------------------------
-        // DRAWER — smaller + centered + hotzone safe
-        // -------------------------------------------------
         injectDrawer() {
             const drawer = document.createElement("div");
             drawer.id = "wf-drawer";
             drawer.style.cssText = `
                 position: fixed;
                 top: 20%;
-                left: -260px; /* moved 4px off edge & shrunk */
-                width: 260px; /* 30% smaller */
-                height: 60%; /* 40% shorter */
+                left: -260px;
+                width: 260px;
+                height: 60%;
                 background: rgba(20,20,20,0.96);
                 border-right: 2px solid #444;
                 border-radius: 0 12px 12px 0;
                 box-shadow: 0 0 12px #000;
-
                 display: flex;
                 flex-direction: column;
                 overflow-y: auto;
-
-                transform: translateX(0);
-                transition: left 0.28s ease-out;
+                transition: left 0.25s ease-out;
                 z-index: 99999;
-                pointer-events: auto;
             `;
 
-            drawer.addEventListener("touchstart", e => e.stopPropagation());
-            drawer.addEventListener("touchmove", e => e.stopPropagation());
-            drawer.addEventListener("click", e => e.stopPropagation());
+            drawer.addEventListener("touchstart", e => e.stopPropagation(), true);
+            drawer.addEventListener("touchmove", e => e.stopPropagation(), true);
+            drawer.addEventListener("click", e => e.stopPropagation(), true);
 
             document.body.appendChild(drawer);
         }
 
-        // -------------------------------------------------
-        // GESTURE BLOCKER — stops Torn mobile from closing
-        // -------------------------------------------------
+        // ----------------------------------------------------
+        // Block Torn’s global cancel behavior during toggle
+        // ----------------------------------------------------
         bindGestureBlocks() {
-            document.addEventListener("touchstart", e => {
-                if (this.isOpen) e.stopPropagation();
+            document.addEventListener("touchend", e => {
+                if (this.touchLock) e.stopPropagation();
             }, true);
 
-            document.addEventListener("touchmove", e => {
-                if (this.isOpen) e.stopPropagation();
+            document.addEventListener("touchcancel", e => {
+                if (this.touchLock) e.stopPropagation();
             }, true);
         }
 
-        // -------------------------------------------------
-        // TOGGLE drawer
-        // -------------------------------------------------
+        // ----------------------------------------------------
+        // FIXED TOGGLE — prevents auto-close on quick tap
+        // ----------------------------------------------------
         toggle() {
             const drawer = document.getElementById("wf-drawer");
             if (!drawer) return;
 
             this.isOpen = !this.isOpen;
 
-            drawer.style.left = this.isOpen
-                ? "0px"
-                : "-260px";
+            // Activate lock to prevent Torn cancelling tap
+            this.touchLock = true;
+            setTimeout(() => this.touchLock = false, 220);
 
-            WF_LOG(`[Drawer] toggled: ${this.isOpen}`);
+            drawer.style.left = this.isOpen ? "0px" : "-260px";
+
+            WF_LOG(`[Drawer] toggled → ${this.isOpen}`);
         }
     }
 
