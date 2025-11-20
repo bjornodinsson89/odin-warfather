@@ -1,15 +1,3 @@
-// ============================================================
-// ODIN WARFATHER — Chain Tab
-// Author: BjornOdinsson89 (https://www.torn.com/profiles.php?XID=3666214)
-// Description: Real-time chain overview synced with Firebase.
-// Displays:
-//   • Current chain count
-//   • Chain timer
-//   • Faction watchers
-//   • Chain XP and modifiers
-//   • Live updates from Sync Engine
-// ============================================================
-
 export class WarfatherChainTab {
 
     constructor(modules) {
@@ -20,19 +8,14 @@ export class WarfatherChainTab {
         this.chain = {};
         this.timerInterval = null;
 
-        // Live sync
         this.sync.onChainStatus((data) => {
             this.chain = data || {};
             this.render();
         });
 
-        // Live watcher updates update the right panel
         this.faction.onWatcherUpdate = () => this.render();
     }
 
-    // --------------------------------------------------------
-    // Main render function
-    // --------------------------------------------------------
     render() {
         const el = document.querySelector("#odin-tab-chain");
         if (!el) return;
@@ -69,18 +52,13 @@ export class WarfatherChainTab {
             </div>
         `;
 
-        // Bind chain refresh button
         document
             .getElementById("wf-refresh-chain")
             .addEventListener("click", () => this.refreshChain());
 
-        // Start/update timer
         this.startTimer(timeLeft);
     }
 
-    // --------------------------------------------------------
-    // Refresh chain data using API
-    // --------------------------------------------------------
     async refreshChain() {
         const fid = this.sync.state.factionID;
         const data = await this.api.request(`faction/${fid}`, "&selections=chain", { force: true });
@@ -90,9 +68,6 @@ export class WarfatherChainTab {
         }
     }
 
-    // --------------------------------------------------------
-    // Timer Logic
-    // --------------------------------------------------------
     startTimer(seconds) {
         if (this.timerInterval) clearInterval(this.timerInterval);
 
@@ -116,3 +91,6 @@ export class WarfatherChainTab {
         this.timerInterval = setInterval(update, 1000);
     }
 }
+
+// EXPORT CORRECT TAB CLASS
+window.WarfatherChainTab = WarfatherChainTab;
