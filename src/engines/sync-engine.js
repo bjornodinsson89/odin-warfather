@@ -3,7 +3,7 @@
 // Author: BjornOdinsson89 (https://www.torn.com/profiles.php?XID=3666214)
 
 /* ============================================================
-   CONFIG (you will replace values using your Firebase console)
+   FIREBASE CONFIG (replace with your values)
    ============================================================ */
 
 const firebaseConfig = {
@@ -17,7 +17,7 @@ const firebaseConfig = {
 };
 
 /* ============================================================
-   INITIALIZATION
+   WARFATHER SYNC ENGINE
    ============================================================ */
 
 class WarfatherSync {
@@ -25,12 +25,24 @@ class WarfatherSync {
     constructor(state) {
         this.state = state;
 
+        // Init Firebase
         this.app = firebase.initializeApp(firebaseConfig);
-        firebase.auth().signInAnonymously().catch(err => console.error("Auth error:", err));
+
+        // Anonymous Auth (required for rules)
+        firebase.auth().signInAnonymously().catch(err =>
+            console.error("Firebase Auth error:", err)
+        );
+
+        // DB Reference
         this.db = firebase.database();
 
+        // Create faction namespace if missing
         this._bootstrapFaction();
     }
+
+    /* ------------------------------------------------------------
+       AUTO-CREATE FACTION NODE ON FIRST RUN
+       ------------------------------------------------------------ */
 
     _bootstrapFaction() {
         const fID = this.state.factionID;
@@ -47,7 +59,8 @@ class WarfatherSync {
                     war: {},
                     chain: {},
                     notes: {},
-                    members: {}
+                    members: {},
+                    chainWatchers: {}
                 });
             } else {
                 console.log(`[Warfather] Faction ${fID} already exists.`);
@@ -61,9 +74,8 @@ class WarfatherSync {
 
     addTarget(target) {
         const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/targets/${target.id}`);
 
-        return ref.set({
+        return this.db.ref(`factions/${fID}/targets/${target.id}`).set({
             ...target,
             factionID: fID,
             updatedBy: this.state.userID,
@@ -73,27 +85,25 @@ class WarfatherSync {
 
     onTargetsUpdated(callback) {
         const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/targets`);
 
-        ref.on("value", snap => callback(snap.val() || {}));
+        this.db.ref(`factions/${fID}/targets`)
+            .on("value", snap => callback(snap.val() || {}));
     }
 
-    removeTarget(playerID) {
+    removeTarget(id) {
         const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/targets/${playerID}`);
-        return ref.remove();
+        return this.db.ref(`factions/${fID}/targets/${id}`).remove();
     }
 
     /* ============================================================
        WAR SYNC
        ============================================================ */
 
-    pushWarEvent(eventObj) {
+    pushWarEvent(evt) {
         const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/war/events`).push();
 
-        return ref.set({
-            ...eventObj,
+        return this.db.ref(`factions/${fID}/war/events`).push().set({
+            ...evt,
             factionID: fID,
             createdAt: Date.now(),
             createdBy: this.state.userID
@@ -102,11 +112,97 @@ class WarfatherSync {
 
     onWarEvents(callback) {
         const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/war/events`);
 
-        ref.on("value", snap => callback(snap.val() || {}));
+        this.db.ref(`factions/${fID}/war/events`)
+            .on("value", snap => callback(snap.val() || {}));
     }
 
-    updateWarState(stateObj) {
+    updateWarState(warState) {
         const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${f
+
+        return this.db.ref(`factions/${fID}/war/state`).set({
+            ...warState,
+            factionID: fID,
+            updatedAt: Date.now(),
+            updatedBy: this.state.userID
+        });
+    }
+
+    onWarState(callback) {
+        const fID = this.state.factionID;
+
+        this.db.ref(`factions/${fID}/war/state`)
+            .on("value", snap => callback(snap.val() || {}));
+    }
+
+    /* ============================================================
+       CHAIN STATUS SYNC
+       ============================================================ */
+
+    updateChainStatus(data) {
+        const fID = this.state.factionID;
+
+        return this.db.ref(`factions/${fID}/chain/status`).set({
+            ...data,
+            factionID: fID,
+            updatedAt: Date.now()
+        });
+    }
+
+    onChainStatus(callback) {
+        const fID = this.state.factionID;
+
+        this.db.ref(`factions/${fID}/chain/status`)
+            .on("value", snap => callback(snap.val() || {}));
+    }
+
+    /* ============================================================
+       MEMBER ACTIVITY SYNC
+       ============================================================ */
+
+    updateMemberActivity(activityObj) {
+        const fID = this.state.factionID;
+        const uID = this.state.userID;
+
+        return this.db.ref(`factions/${fID}/members/${uID}`).update({
+            ...activityObj,
+            factionID: fID,
+            userID: uID,
+            updatedAt: Date.now()
+        });
+    }
+
+    onMembersUpdated(callback) {
+        const fID = this.state.factionID;
+
+        this.db.ref(`factions/${fID}/members`)
+            .on("value", snap => callback(snap.val() || {}));
+    }
+
+    /* ============================================================
+       🔥 CHAIN WATCHER SYSTEM (NEW)
+       ============================================================ */
+
+    setChainWatcher(active) {
+        const fID = this.state.factionID;
+        const uID = this.state.userID;
+
+        return this.db.ref(`factions/${fID}/chainWatchers/${uID}`).set({
+            active,
+            updatedAt: Date.now()
+        });
+    }
+
+    onChainWatchersUpdated(callback) {
+        const fID = this.state.factionID;
+
+        this.db.ref(`factions/${fID}/chainWatchers`)
+            .on("value", snap => callback(snap.val() || {}));
+    }
+}
+
+/* ============================================================
+   EXPORT
+   ============================================================ */
+
+window.WarfatherSync = WarfatherSync;
