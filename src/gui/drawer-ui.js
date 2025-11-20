@@ -1,46 +1,63 @@
 // ===============================
-// ODIN WARFATHER — Drawer UI (Persistent Button Version)
+// ODIN WARFATHER — Drawer UI (Stable Version)
 // ===============================
+
 (function () {
 
     class WarfatherDrawer {
 
         constructor() {
             this.isOpen = false;
-            this._observer = null;
+            this.buttonReady = false;
         }
 
         init() {
             console.log("[WF Drawer] Loaded");
 
-            this.injectButton();
-            this.insertDrawer();
-            this.startObserver();
+            this.waitForStableDOM(() => {
+                this.injectButton();
+                this.injectDrawer();
+                this.observeForRemoval();
+            });
         }
 
-        // --- Always reinsert if Torn removes it ---
-        startObserver() {
-            this._observer = new MutationObserver(() => {
-                const btn = document.getElementById("wf-header-button");
-                if (!btn) {
-                    console.log("[WF Drawer] Button missing → Reinserting...");
+        // Wait until Torn's header stops rebuilding
+        waitForStableDOM(callback) {
+            let last = document.body.innerHTML.length;
+            let count = 0;
+
+            const timer = setInterval(() => {
+                const now = document.body.innerHTML.length;
+
+                if (now === last) count++;
+                else count = 0;
+
+                last = now;
+
+                // 3 stable frames = DOM has stopped changing
+                if (count >= 3) {
+                    clearInterval(timer);
+                    callback();
+                }
+            }, 120);
+        }
+
+        observeForRemoval() {
+            const observer = new MutationObserver(() => {
+                if (!document.getElementById("wf-header-button")) {
+                    console.log("[WF Drawer] Button missing → Reinserting");
                     this.injectButton();
                 }
-                const drawer = document.getElementById("wf-drawer");
-                if (!drawer) {
-                    console.log("[WF Drawer] Drawer missing → Reinserting...");
-                    this.insertDrawer();
+                if (!document.getElementById("wf-drawer")) {
+                    console.log("[WF Drawer] Drawer missing → Reinserting");
+                    this.injectDrawer();
                 }
             });
 
-            this._observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
+            observer.observe(document.body, { childList: true, subtree: true });
         }
 
         injectButton() {
-            // Do not double-create
             if (document.getElementById("wf-header-button")) return;
 
             const btn = document.createElement("div");
@@ -52,15 +69,19 @@
 
             btn.appendChild(img);
 
+            // fix double toggle by debouncing click
+            let lock = false;
             btn.addEventListener("click", () => {
-                console.log("[WF BUTTON] Click → toggle()");
+                if (lock) return;
+                lock = true;
                 this.toggle();
+                setTimeout(() => lock = false, 180);
             });
 
             document.body.appendChild(btn);
         }
 
-        insertDrawer() {
+        injectDrawer() {
             if (document.getElementById("wf-drawer")) return;
 
             const drawer = document.createElement("div");
@@ -79,7 +100,7 @@
             drawer.classList.toggle("wf-open", this.isOpen);
             btn.classList.toggle("wf-open", this.isOpen);
 
-            console.log("[WF Drawer] Drawer toggled:", this.isOpen);
+            console.log("[WF Drawer] Toggled:", this.isOpen);
         }
     }
 
