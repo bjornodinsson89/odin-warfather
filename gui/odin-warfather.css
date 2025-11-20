@@ -143,3 +143,25 @@
     color: #888;
     margin-right: 6px;
 }
+
+/* CHAIN TAB */
+.wf-chain-stats {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 15px;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.wf-chain-timer {
+    font-size: 30px;
+    font-weight: 700;
+    text-align: center;
+    color: #fff;
+    background: #000;
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 6px;
+    width: 150px;
+    margin: 0 auto 20px auto;
+}
