@@ -1,38 +1,21 @@
-// Prevent double-load
-if (window.__WF_DRAWER_LOADED__) {
-    console.log("[WF] Drawer already loaded, skipping duplicate.");
-    return;
-}
-window.__WF_DRAWER_LOADED__ = true;
+(function () {
 
-
-// ===============================
-// ODIN WARFATHER — Drawer UI
-// ===============================
-
-(function() {
-
-    class OdinWarDrawer {
+    class WarfatherDrawer {
 
         constructor() {
-            this.side = GM_getValue("wf_drawer_side", "left"); // future
             this.isOpen = false;
         }
 
         init() {
-            // Prevent double render
             if (document.getElementById("wf-drawer")) return;
 
-            this._injectButton();
-            this._injectDrawer();
+            this.injectButton();
+            this.injectDrawer();
 
-            console.log("%c[WF Drawer] Initialized", "color:#8f8");
+            console.log("[WF Drawer] Initialized");
         }
 
-        // ------------------------------------------
-        // Inject header button near TornTools button
-        // ------------------------------------------
-        _injectButton() {
+        injectButton() {
             const btn = document.createElement("div");
             btn.id = "wf-header-button";
             btn.textContent = "≡ WARFATHER";
@@ -50,3 +33,37 @@ window.__WF_DRAWER_LOADED__ = true;
             `;
             btn.addEventListener("click", () => this.toggle());
             document.body.appendChild(btn);
+        }
+
+        injectDrawer() {
+            const drawer = document.createElement("div");
+            drawer.id = "wf-drawer";
+            drawer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 350px;
+                background: rgba(20,20,20,0.96);
+                border-right: 2px solid #444;
+                transform: translateX(-360px);
+                transition: transform 0.25s ease;
+                z-index: 99998;
+            `;
+            document.body.appendChild(drawer);
+        }
+
+        toggle() {
+            const drawer = document.getElementById("wf-drawer");
+            if (!drawer) return;
+
+            this.isOpen = !this.isOpen;
+            drawer.style.transform = this.isOpen
+                ? "translateX(0)"
+                : "translateX(-360px)";
+        }
+    }
+
+    window.WarfatherDrawer = new WarfatherDrawer();
+
+})();
