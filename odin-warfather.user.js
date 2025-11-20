@@ -1,107 +1,108 @@
 // ==UserScript==
 // @name         ODIN WARFATHER
 // @namespace    https://github.com/bjornodinsson89/odin-warfather
-// @version      1.0.3
-// @description  Faction War Engine for Torn City — War, Chain, Faction Hub, Targets, Console, Sync Engine, Firebase, SmartAPI
+// @version      1.0.0
+// @description  The Ultimate Faction War & Chain Command Engine for Torn City.
 // @author       BjornOdinsson89
 // @match        https://www.torn.com/*
-// @match        https://www.torn.com/*?*
-// @match        https://www.torn.com/*#*
-// @match        https://*.torn.com/*
 // @updateURL    https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/odin-warfather.user.js
 // @downloadURL  https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/odin-warfather.user.js
+//
 // @grant        GM_addStyle
-// @grant        GM_getResourceText
-// @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
+// @grant        GM_getResourceText
+// @grant        GM_xmlhttpRequest
 // @run-at       document-end
-// @resource     odinCSS https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/odin-warfather.css
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/key-panel.js
+//
+// @resource     wfCSS https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/odin-warfather.css
+// @resource     drawerCSS https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/drawer-ui.css
+//
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/sync-engine.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/smartapi.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/faction-engine.js
+//
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/odin-gui.js
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/dashboard-tab.js
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/faction-tab.js
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/war-tab.js
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/chain-tab.js
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/targets-tab.js
-// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/console-tab.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/drawer-ui.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/key-panel.js
+//
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/dashboard-tab.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/faction-tab.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/war-tab.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/chain-tab.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/targets-tab.js
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/console-tab.js
+//
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/odin-gui-integrator.js
 // ==/UserScript==
 
-(function warfatherBootstrap() {
-    const css = GM_getResourceText("odinCSS");
-    GM_addStyle(css);
 
-    function waitForModules() {
-        if (!window.WarfatherSync ||
+(function warfatherBootstrap() {
+
+    // ---------------------------------------------------------
+    // Load CSS resources
+    // ---------------------------------------------------------
+    try {
+        const wf = GM_getResourceText("wfCSS");
+        const dr = GM_getResourceText("drawerCSS");
+        GM_addStyle(wf);
+        GM_addStyle(dr);
+        console.log("%c[Warfather] CSS loaded", "color:#44ff44");
+    } catch (e) {
+        console.log("%c[Warfather] CSS FAILED TO LOAD", "color:#ff4444", e);
+    }
+
+
+    // ---------------------------------------------------------
+    // Wait for minimal Torn DOM + WF modules
+    // ---------------------------------------------------------
+    function waitForStartup() {
+
+        if (!document.querySelector("#headerRoot")) {
+            return setTimeout(waitForStartup, 100);
+        }
+
+        if (!window.OdinWarDrawer ||
+            !window.WarfatherSync ||
             !window.SmartAPI ||
             !window.WarfatherFactionEngine ||
-            !window.OdinWarGUI ||
-            !window.WarfatherGUI ||
-            !window.WarfatherDashboardTab ||
-            !window.WarfatherFactionTab ||
-            !window.WarfatherWarTab ||
-            !window.WarfatherChainTab ||
-            !window.WarfatherTargetsTab ||
-            !window.WarfatherConsoleTab ||
-            !window.WarfatherKeyPanel) {
-            return setTimeout(waitForModules, 100);
+            !window.WarfatherIntegrator) {
+
+            return setTimeout(waitForStartup, 100);
         }
+
         startWarfather();
     }
 
-    async function startWarfather() {
-        const apiKey = GM_getValue("wf_api_key", "");
 
-        if (!apiKey) {
+    // ---------------------------------------------------------
+    // Primary startup
+    // ---------------------------------------------------------
+    function startWarfather() {
+
+        console.log("%c[Warfather] Starting...", "color:#ff2222;font-size:14px;");
+
+        // API Key Check
+        const key = GM_getValue("wf_api_key", "");
+        if (!key) {
+            console.log("%c[Warfather] No API key detected — showing key panel.", "color:#ffaa00");
             new window.WarfatherKeyPanel();
             return;
         }
 
-        const userID = parseInt(
-            document.querySelector("a[href*='XID=']")?.href?.match(/XID=(\d+)/)?.[1]
-        ) || 0;
-
-        let factionID = GM_getValue("wfFactionID", 0);
-
-        if (!factionID && window.SmartAPI) {
-            try {
-                const apiProbe = new window.SmartAPI(apiKey, null);
-                const me = await apiProbe.request("user", "&selections=profile");
-                factionID = me.faction?.faction_id || 0;
-                GM_setValue("wfFactionID", factionID);
-            } catch (e) {
-                console.log("[WarFather] Faction detection failed");
-            }
-        }
-
-        window.WF_STATE = { userID, factionID };
-
-        const sync = new window.WarfatherSync(window.WF_STATE);
-        const api = new window.SmartAPI(apiKey, sync);
-        const faction = new window.WarfatherFactionEngine(sync, api);
-
-        window.WF_ENGINES = { sync, api, faction };
-
-        // GUI auto-instantiates in its own module (no .init() calls)
-
-        createTabs(sync, api, faction);
-
-        console.log("%c[Warfather] FULLY INITIALIZED", "color:#ff4444;font-weight:bold;");
+        // Integrator handles everything else:
+        //  - Drawer
+        //  - Tabs
+        //  - Sync
+        //  - API
+        //  - Faction data
+        //  - Render loops
+        console.log("%c[Warfather] Integrator taking over...", "color:#99ccff;");
+        // Integrator auto-executes on creation.
     }
 
-    function createTabs(sync, api, faction) {
-        new window.WarfatherDashboardTab({ sync, api, faction });
-        new window.WarfatherFactionTab({ sync, api, faction });
-        new window.WarfatherWarTab({ sync, api, faction });
-        new window.WarfatherChainTab({ sync, api, faction });
-        new window.WarfatherTargetsTab({ sync, api, faction });
-        new window.WarfatherConsoleTab({ sync, api, faction });
-    }
 
-    waitForModules();
+    waitForStartup();
+
 })();
