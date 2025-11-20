@@ -18,6 +18,7 @@
 // @grant        GM_deleteValue
 // @run-at       document-end
 // @resource     odinCSS https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/odin-warfather.css
+// @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/key-panel.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/sync-engine.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/smartapi.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/faction-engine.js
