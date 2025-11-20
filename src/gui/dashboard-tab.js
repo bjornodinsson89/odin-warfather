@@ -70,3 +70,5 @@ export class WarfatherDashboardTab {
         `;
     }
 }
+
+window.WarfatherDashboardTab = WarfatherDashboardTab;
