@@ -188,3 +188,26 @@
 .wf-remove:hover {
     background: #aa2222 !important;
 }
+
+/* CONSOLE TAB */
+.wf-console-output {
+    background: #0d0d0d;
+    border: 1px solid #333;
+    padding: 10px;
+    border-radius: 6px;
+    height: 300px;
+    overflow-y: auto;
+    color: #ccc;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.wf-log-line {
+    padding: 2px 0;
+}
+
+.wf-console-input {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
