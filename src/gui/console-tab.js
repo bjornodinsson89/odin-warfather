@@ -109,3 +109,5 @@ export class WarfatherConsoleTab {
         this.render();
     }
 }
+
+window.WarfatherConsoleTab = WarfatherConsoleTab;
