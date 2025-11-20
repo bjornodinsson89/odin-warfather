@@ -1,79 +1,64 @@
-/* ============================================================
-   ODIN WARFATHER — Drawer UI Styling
-   ============================================================ */
+/* ================================
+   WARFATHER — Overlay Bear Button
+================================ */
 
-/* --------------------------------------------
-   Responsive Bear Button
--------------------------------------------- */
 #wf-header-button {
     position: fixed !important;
-    top: 6px !important;
+
+    top: 8px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
 
-    width: clamp(46px, 8vw, 86px) !important;
-    height: clamp(46px, 8vw, 86px) !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    width: clamp(40px, 8vw, 70px) !important;
+    height: clamp(40px, 8vw, 70px) !important;
 
     z-index: 999999 !important;
     cursor: pointer !important;
-    pointer-events: auto !important;
 
     background: transparent !important;
-    border-radius: 50% !important;
     border: none !important;
-
-    transition: transform 0.12s ease;
+    padding: 0 !important;
 }
 
-/* Press animation */
-#wf-header-button:active {
-    transform: translateX(-50%) scale(0.92) !important;
-}
-
-/* Bear icon */
 #wf-bear-icon {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important;
-
-    image-rendering: high-quality !important;
     pointer-events: none !important;
+
     background: transparent !important;
 }
 
 /* Glow when open */
 #wf-header-button.wf-open #wf-bear-icon {
-    filter: drop-shadow(0 0 14px rgba(255, 40, 40, 0.9));
+    filter: drop-shadow(0 0 12px rgba(255, 60, 60, 0.9));
+    transition: filter 0.2s ease-out;
 }
 
-/* --------------------------------------------
+/* ================================
    Drawer Panel
--------------------------------------------- */
+================================ */
+
 #wf-drawer {
     position: fixed !important;
-    top: 10vh !important;
-    left: 0 !important;
+    top: 0;
+    left: 0;
 
     width: 65vw !important;
-    max-width: 290px !important;
-    height: 55vh !important;
+    max-width: 300px !important;
+    height: 65vh !important;
 
-    background: rgba(20, 20, 20, 0.95);
-    border-right: 2px solid #444;
-    border-radius: 0 12px 12px 0 !important;
+    background: rgba(20, 20, 20, 0.96);
+    border-right: 2px solid #333;
+    border-radius: 0 14px 14px 0; /* rounded */
 
     transform: translateX(-110%);
-    opacity: 0;
-
     transition: transform 0.25s ease, opacity 0.25s ease;
-    z-index: 999990 !important;
+
+    opacity: 0;
+    z-index: 999998 !important;
 }
 
-/* Visible drawer */
 #wf-drawer.wf-open {
     transform: translateX(0%);
     opacity: 1;
