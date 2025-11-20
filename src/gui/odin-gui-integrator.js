@@ -1,137 +1,153 @@
 // ============================================================
-// ODIN WARFATHER — GUI Integrator
-// Namespace: window.WarfatherGUI
+// ODIN WARFATHER — INTEGRATOR v2
+// Author: BjornOdinsson89
 // Purpose:
-//   • Bootstraps all engines (Sync, API, Faction)
-//   • Creates GUI tabs in Odin Drawer
-//   • Connects modules via window.* namespace
-//   • Starts update loops and event streams
+//   ✔ Connect tabs to the new WarFather Drawer UI
+//   ✔ Create tab content panels inside drawer
+//   ✔ Connect Sync, API, Faction engines
+//   ✔ Auto-render first tab
+//   ✔ Ensure proper initialization order
 // ============================================================
 
-// ------------------------------------------------------------
-// GLOBAL NAMESPACE
-// ------------------------------------------------------------
-window.WarfatherGUI = {
-    engines: {},
-    tabs: {},
-    initCalled: false
-};
+(function () {
 
+function log(msg) {
+    console.log(`%c[Integrator] ${msg}`, "color:#ff4444");
+}
 
-// ------------------------------------------------------------
-// MAIN INITIALIZER
-// ------------------------------------------------------------
-window.WarfatherGUI.init = async function() {
+class WarfatherIntegrator {
 
-    if (this.initCalled) return;
-    this.initCalled = true;
-
-    console.log("%c[WarfatherGUI] Initializing...", "color:#ff4444;");
-
-    // ----------------------------------------
-    // 1. Load Engines (via window namespace)
-    // ----------------------------------------
-    const SyncEngine      = window.WarfatherSync;
-    const SmartAPIEngine  = window.SmartAPI;
-    const FactionEngine   = window.WarfatherFactionEngine;
-
-    // Read player info from page or your existing GUI base file
-    const userID     = window.ODIN_PLAYER_ID ?? 0;
-    const factionID  = window.ODIN_FACTION_ID ?? 0;
-
-    // Engine state
-    const state = { userID, factionID };
-
-    // Create engines
-    const sync    = new SyncEngine(state);
-    const api     = new SmartAPIEngine();
-    const faction = new FactionEngine(sync, api);
-
-    // Store engines globally
-    this.engines = { sync, api, faction };
-
-    console.log("[WarfatherGUI] Engines loaded.");
-
-    // ----------------------------------------
-    // 2. Load Tabs (via window namespace)
-    // ----------------------------------------
-    const DashboardTab = window.WarfatherDashboardTab;
-    const FactionTab   = window.WarfatherFactionTab;
-    const WarTab       = window.WarfatherWarTab;
-    const ChainTab     = window.WarfatherChainTab;
-    const TargetsTab   = window.WarfatherTargetsTab;
-    const ConsoleTab   = window.WarfatherConsoleTab;
-
-    // Create tab instances
-    const dashboard = new DashboardTab({ sync, api, faction });
-    const factionTab = new FactionTab({ sync, api, faction });
-    const warTab = new WarTab({ sync, api, faction });
-    const chainTab = new ChainTab({ sync, api, faction });
-    const targetsTab = new TargetsTab({ sync, api, faction });
-    const consoleTab = new ConsoleTab({ sync, api, faction });
-
-    this.tabs = {
-        dashboard,
-        faction: factionTab,
-        war: warTab,
-        chain: chainTab,
-        targets: targetsTab,
-        console: consoleTab
-    };
-
-    console.log("[WarfatherGUI] Tabs created.");
-
-    // ----------------------------------------
-    // 3. Attach GUI Layout (Drawer Tabs)
-    // ----------------------------------------
-    this.attachDrawerTabs();
-
-    // ----------------------------------------
-    // 4. Kick initial renders
-    // ----------------------------------------
-    dashboard.render();
-    factionTab.render();
-    warTab.render();
-    chainTab.render();
-    targetsTab.render();
-    consoleTab.render();
-
-    // ----------------------------------------
-    // 5. Prime engines
-    // ----------------------------------------
-    await faction.loadFaction();       // load roster
-    chainTab.refreshChain();           // load chain data
-    console.log("[WarfatherGUI] Initialization complete.");
-};
-
-
-// ------------------------------------------------------------
-// ADD TABS TO ODIN DRAWER UI
-// ------------------------------------------------------------
-// ADD TABS TO ODIN DRAWER UI
-window.WarfatherGUI.attachDrawerTabs = function () {
-    const GUI = window.OdinWarGUI;
-
-    if (!GUI) {
-        console.log("ERROR: OdinWarGUI not found.");
-        return;
+    constructor() {
+        this.ready = false;
+        this.init();
     }
 
-    GUI.addTab("dashboard", "Dashboard");
-    GUI.addTab("faction",   "Faction");
-    GUI.addTab("war",       "War");
-    GUI.addTab("chain",     "Chain");
-    GUI.addTab("targets",   "Targets");
-    GUI.addTab("console",   "Console");
-
-    console.log("[WarfatherGUI] Drawer tabs attached.");
-};
-
-// AUTO-ATTACH TABS ON PAGE LOAD (NO .init() CALL)
-setTimeout(() => {
-    if (window.WarfatherGUI && window.WarfatherGUI.attachDrawerTabs) {
-        window.WarfatherGUI.attachDrawerTabs();
-    } else {
-        console.log("[WarfatherGUI] GUI not ready for tabs.");
+    // --------------------------------------------------------
+    // Wait for drawer + engines
+    // --------------------------------------------------------
+    init() {
+        if (!window.OdinWarDrawer ||
+            !window.WarfatherSync ||
+            !window.SmartAPI ||
+            !window.WarfatherFactionEngine) {
+            return setTimeout(() => this.init(), 200);
+        }
+        this.setup();
     }
-}, 1200);
+
+    // --------------------------------------------------------
+    // Full system bootstrap
+    // --------------------------------------------------------
+    setup() {
+        log("Initializing WarFather GUI...");
+
+        // 1. Drawer UI
+        const Drawer = window.OdinWarDrawer;
+        Drawer.init();
+
+        // 2. Create GUI panel containers INSIDE drawer
+        this.createPanels();
+
+        // 3. Build engines AFTER panels exist
+        const userID = parseInt(
+            document.querySelector("a[href*='XID=']")?.href?.match(/XID=(\d+)/)?.[1]
+        ) || 0;
+
+        const factionID = GM_getValue("wfFactionID", 0);
+
+        const state = { userID, factionID };
+        const sync = new window.WarfatherSync(state);
+        const api = new window.SmartAPI(GM_getValue("wf_api_key", ""), sync);
+        const faction = new window.WarfatherFactionEngine(sync, api);
+
+        window.WF_ENGINES = { sync, api, faction };
+
+        // 4. Register tabs into drawer
+        this.registerTabs(Drawer, { sync, api, faction });
+
+        // 5. Initial loads
+        faction.loadFaction();
+        api.syncChainStatus(factionID);
+        api.updateWarState(factionID);
+
+        this.ready = true;
+        log("Warfather fully initialized.");
+    }
+
+    // --------------------------------------------------------
+    // Create tab panel containers
+    // --------------------------------------------------------
+    createPanels() {
+        const content = document.querySelector("#wf-drawer-content");
+        if (!content) return setTimeout(() => this.createPanels(), 100);
+
+        const names = [
+            "dashboard",
+            "faction",
+            "war",
+            "chain",
+            "targets",
+            "console"
+        ];
+
+        for (const name of names) {
+            const div = document.createElement("div");
+            div.id = `odin-tab-${name}`;
+            div.className = "wf-tab-panel";
+            div.style.display = "none";
+            content.appendChild(div);
+        }
+    }
+
+    // --------------------------------------------------------
+    // Register visible tab buttons
+    // --------------------------------------------------------
+    registerTabs(Drawer, engines) {
+
+        const icons = {
+            dashboard: "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/icons/dashboard.png",
+            faction:   "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/icons/faction.png",
+            war:       "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/icons/war.png",
+            chain:     "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/icons/chain.png",
+            targets:   "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/icons/targets.png",
+            console:   "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/icons/console.png",
+        };
+
+        const tabs = {
+            dashboard: new window.WarfatherDashboardTab(engines),
+            faction:   new window.WarfatherFactionTab(engines),
+            war:       new window.WarfatherWarTab(engines),
+            chain:     new window.WarfatherChainTab(engines),
+            targets:   new window.WarfatherTargetsTab(engines),
+            console:   new window.WarfatherConsoleTab(engines)
+        };
+
+        for (const key in tabs) {
+            Drawer.registerTab(
+                key,
+                key.charAt(0).toUpperCase() + key.slice(1),
+                icons[key],
+                () => this.activateTab(key, tabs[key])
+            );
+        }
+
+        this.activateTab("dashboard", tabs.dashboard);
+    }
+
+    // --------------------------------------------------------
+    // Switch active tab
+    // --------------------------------------------------------
+    activateTab(key, tabObj) {
+        const panels = document.querySelectorAll(".wf-tab-panel");
+        panels.forEach(p => p.style.display = "none");
+
+        const panel = document.querySelector(`#odin-tab-${key}`);
+        if (panel) panel.style.display = "block";
+
+        if (tabObj.render) tabObj.render();
+    }
+}
+
+window.WarfatherIntegrator = new WarfatherIntegrator();
+
+})();
