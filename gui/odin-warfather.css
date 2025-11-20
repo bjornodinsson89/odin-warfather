@@ -1,0 +1,109 @@
+/* ============================================================
+   ODIN WARFATHER — CORE GUI STYLES
+   Author: BjornOdinsson89
+   Purpose: Global styles for all WarFather GUI components
+   ============================================================ */
+
+:root {
+    --wf-bg: #131313;
+    --wf-bg-light: #1c1c1c;
+    --wf-border: #333;
+    --wf-text: #ddd;
+    --wf-accent: #ff4444;
+}
+
+/* CONTAINER SECTION */
+.wf-section {
+    padding: 12px;
+    background: var(--wf-bg-light);
+    border: 1px solid var(--wf-border);
+    border-radius: 6px;
+    margin-bottom: 15px;
+    color: var(--wf-text);
+    font-family: 'Inter', sans-serif;
+}
+
+/* HEADERS */
+.wf-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-subtitle {
+    font-size: 16px;
+    opacity: 0.85;
+    margin-bottom: 8px;
+}
+
+/* BUTTONS */
+.wf-button {
+    background: #222;
+    border: 1px solid #555;
+    color: #eee;
+    padding: 7px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 13px;
+}
+.wf-button:hover {
+    background: #333;
+    border-color: #777;
+}
+
+/* TABLES */
+.wf-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.wf-table th, .wf-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--wf-border);
+    text-align: left;
+    font-size: 13px;
+}
+
+.wf-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* STATUS COLORS */
+.wf-status-online {
+    color: #00ff66;
+}
+.wf-status-hospital {
+    color: #ff4444;
+}
+.wf-status-travel {
+    color: #3399ff;
+}
+.wf-status-offline {
+    color: #888;
+}
+
+/* WATCHER BADGES */
+.wf-watcher-glow {
+    display:inline-block;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background: var(--wf-accent);
+    box-shadow:
+        0 0 6px #ff2222,
+        0 0 14px #ff4444,
+        0 0 22px rgba(255,0,0,0.6);
+}
+
+.wf-watcher-off {
+    display:inline-block;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:#555;
+    opacity:0.4;
+}
