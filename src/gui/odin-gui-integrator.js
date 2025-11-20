@@ -108,17 +108,15 @@ window.WarfatherGUI.init = async function() {
 // ------------------------------------------------------------
 // ADD TABS TO ODIN DRAWER UI
 // ------------------------------------------------------------
-window.WarfatherGUI.attachDrawerTabs = function() {
-
-    // Your GUI base file (Odin Drawer UI Framework)
+// ADD TABS TO ODIN DRAWER UI
+window.WarfatherGUI.attachDrawerTabs = function () {
     const GUI = window.OdinWarGUI;
 
     if (!GUI) {
-        console.log("ERROR: OdinWarGUI not found. Cannot attach tabs.");
+        console.log("ERROR: OdinWarGUI not found.");
         return;
     }
 
-    // Create container for each tab
     GUI.addTab("dashboard", "Dashboard");
     GUI.addTab("faction",   "Faction");
     GUI.addTab("war",       "War");
@@ -126,13 +124,14 @@ window.WarfatherGUI.attachDrawerTabs = function() {
     GUI.addTab("targets",   "Targets");
     GUI.addTab("console",   "Console");
 
-    console.log("[WarfatherGUI] Drawer tabs added.");
+    console.log("[WarfatherGUI] Drawer tabs attached.");
 };
 
-
-// ------------------------------------------------------------
-// AUTO-START ON PAGE LOAD
-// ------------------------------------------------------------
+// AUTO-ATTACH TABS ON PAGE LOAD (NO .init() CALL)
 setTimeout(() => {
-    window.WarfatherGUI.init();
+    if (window.WarfatherGUI && window.WarfatherGUI.attachDrawerTabs) {
+        window.WarfatherGUI.attachDrawerTabs();
+    } else {
+        console.log("[WarfatherGUI] GUI not ready for tabs.");
+    }
 }, 1200);
