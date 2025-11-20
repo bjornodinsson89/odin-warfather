@@ -1,6 +1,6 @@
 // Odin Warfather — Sync Engine
 // Handles multi-faction real-time sync via Firebase Realtime Database
-// Author: BjornOdinsson89
+// Author: BjornOdinsson89 (https://www.torn.com/profiles.php?XID=3666214)
 
 /* ============================================================
    CONFIG (you will replace values using your Firebase console)
@@ -23,20 +23,14 @@ const firebaseConfig = {
 class WarfatherSync {
 
     constructor(state) {
-        // state = { userID, factionID, playername }
         this.state = state;
 
-        // Initialize Firebase App
         this.app = firebase.initializeApp(firebaseConfig);
+        firebase.auth().signInAnonymously().catch(err => console.error("Auth error:", err));
         this.db = firebase.database();
 
-        // Create faction namespace if missing
         this._bootstrapFaction();
     }
-
-    /* -----------------------------------------------------------
-       Create faction root node automatically if missing
-       ----------------------------------------------------------- */
 
     _bootstrapFaction() {
         const fID = this.state.factionID;
@@ -67,7 +61,6 @@ class WarfatherSync {
 
     addTarget(target) {
         const fID = this.state.factionID;
-
         const ref = this.db.ref(`factions/${fID}/targets/${target.id}`);
 
         return ref.set({
@@ -82,9 +75,7 @@ class WarfatherSync {
         const fID = this.state.factionID;
         const ref = this.db.ref(`factions/${fID}/targets`);
 
-        ref.on("value", snap => {
-            callback(snap.val() || {});
-        });
+        ref.on("value", snap => callback(snap.val() || {}));
     }
 
     removeTarget(playerID) {
@@ -94,7 +85,7 @@ class WarfatherSync {
     }
 
     /* ============================================================
-       WAR SYNC (war timeline + war state)
+       WAR SYNC
        ============================================================ */
 
     pushWarEvent(eventObj) {
@@ -118,90 +109,4 @@ class WarfatherSync {
 
     updateWarState(stateObj) {
         const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/war/state`);
-
-        return ref.set({
-            ...stateObj,
-            factionID: fID,
-            updatedBy: this.state.userID,
-            updatedAt: Date.now()
-        });
-    }
-
-    onWarState(callback) {
-        const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/war/state`);
-        ref.on("value", snap => callback(snap.val() || {}));
-    }
-
-    /* ============================================================
-       CHAIN SYNC
-       ============================================================ */
-
-    updateChainStatus(chainObj) {
-        const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/chain/status`);
-
-        return ref.set({
-            ...chainObj,
-            factionID: fID,
-            updatedBy: this.state.userID,
-            updatedAt: Date.now()
-        });
-    }
-
-    onChainStatus(callback) {
-        const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/chain/status`);
-        ref.on("value", snap => callback(snap.val() || {}));
-    }
-
-    /* ============================================================
-       MEMBER ACTIVITY SYNC
-       ============================================================ */
-
-    updateMemberActivity(activityObj) {
-        const fID = this.state.factionID;
-        const uID = this.state.userID;
-
-        const ref = this.db.ref(`factions/${fID}/members/${uID}`);
-
-        return ref.set({
-            ...activityObj,
-            factionID: fID,
-            userID: uID,
-            updatedAt: Date.now()
-        });
-    }
-
-    onMembersUpdated(callback) {
-        const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/members`);
-        ref.on("value", snap => callback(snap.val() || {}));
-    }
-
-    /* ============================================================
-       NOTES / BROADCASTS
-       ============================================================ */
-
-    pushFactionNote(noteObj) {
-        const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/notes`).push();
-
-        return ref.set({
-            ...noteObj,
-            factionID: fID,
-            createdBy: this.state.userID,
-            createdAt: Date.now()
-        });
-    }
-
-    onNotes(callback) {
-        const fID = this.state.factionID;
-        const ref = this.db.ref(`factions/${fID}/notes`);
-        ref.on("value", snap => callback(snap.val() || {}));
-    }
-}
-
-// Export global for other modules
-window.WarfatherSync = WarfatherSync;
+        const ref = this.db.ref(`factions/${f
