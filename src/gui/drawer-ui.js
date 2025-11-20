@@ -1,53 +1,29 @@
+// =======================================================
+// WARFATHER DRAWER — HARDCORE DEBUG LOCATOR MODE
+// =======================================================
+
 (function () {
 
     class WarfatherDrawer {
 
         constructor() {
-            this.isOpen = false;
+            this.isOpen = true; // FORCE OPEN
         }
 
         init() {
-            // Ensure page is ready
-            document.addEventListener("DOMContentLoaded", () => {
-                this._safeInit();
-            });
-
-            // Fallback for SPA navigation / Torn internal reloads
-            setTimeout(() => this._safeInit(), 500);
+            setTimeout(() => this._safeInit(), 250);
         }
 
         _safeInit() {
-            if (document.getElementById("wf-drawer")) return;
+            console.log("[WF Drawer DEBUG] Running drawer locator");
 
-            this.injectButton();
+            // Remove old
+            const old = document.getElementById("wf-drawer");
+            if (old) old.remove();
+
             this.injectDrawer();
 
-            console.log("[WF Drawer] Initialized (safe)");
-        }
-
-        injectButton() {
-            const btn = document.createElement("div");
-            btn.id = "wf-header-button";
-
-            // 🔥 Replace text with bear icon
-            btn.innerHTML = `<img src="https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/bear-icon.png"
-                               style="height:26px;width:auto;" />`;
-
-            btn.style.cssText = `
-                position: fixed;
-                top: 90px;
-                left: 10px;
-                background: rgba(0,0,0,0.75);
-                padding: 8px 10px;
-                border-radius: 10px;
-                z-index: 99999;
-                cursor: pointer;
-                border: 2px solid #a00;
-            `;
-
-            btn.addEventListener("click", () => this.toggle());
-
-            document.body.appendChild(btn);
+            console.log("[WF Drawer DEBUG] Drawer injected");
         }
 
         injectDrawer() {
@@ -55,34 +31,31 @@
             drawer.id = "wf-drawer";
 
             drawer.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                width: 360px;
-                background: rgba(15,15,15,0.98);
-                border-right: 3px solid #a00;
-                transform: translateX(-380px);
-                transition: transform 0.25s ease;
-                z-index: 99998;
-                overflow-y: auto;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+
+                /* 🔥 FIRE RED LOCATOR */
+                background: rgba(255, 0, 0, 0.5) !important;
+                border: 5px solid yellow !important;
+                z-index: 999999 !important;
+
+                transform: none !important;
+                transition: none !important;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 32px;
+                font-weight: bold;
+                color: #fff;
             `;
 
+            drawer.textContent = "DRAWER LOCATOR — IF YOU SEE THIS, DRAWER WORKS";
+
             document.body.appendChild(drawer);
-        }
-
-        toggle() {
-            const drawer = document.getElementById("wf-drawer");
-            if (!drawer) {
-                console.log("[WF Drawer] ERROR: Drawer missing");
-                return;
-            }
-
-            this.isOpen = !this.isOpen;
-
-            drawer.style.transform = this.isOpen
-                ? "translateX(0)"
-                : "translateX(-380px)";
         }
     }
 
