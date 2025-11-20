@@ -1,7 +1,6 @@
-// ===============================
-// ODIN WARFATHER — Drawer UI (Stable Version)
-// ===============================
-
+// ============================================
+// ODIN WARFATHER — Drawer UI (Overlay Version)
+// ============================================
 (function () {
 
     class WarfatherDrawer {
@@ -13,93 +12,91 @@
         init() {
             console.log("[WF Drawer] init() called");
 
-            this.injectButton();
-            this.injectDrawer();
-            this.observeForRemoval();
+            // Delay to avoid Torn nuking our overlay
+            setTimeout(() => {
+                console.log("[WF Drawer] Delayed init running…");
 
-            console.log("[WF Drawer] init() completed");
+                this.createOverlayButton();
+                this.createDrawer();
+                this.startObserver();
+
+                console.log("[WF Drawer] init() complete");
+            }, 500);
         }
 
-        // Watch for Torn wiping the elements and reinsert if missing
-        observeForRemoval() {
-            const observer = new MutationObserver(() => {
-                const btn = document.getElementById("wf-header-button");
-                if (!btn) {
-                    console.log("[WF Drawer] Button missing → reinjectButton()");
-                    this.injectButton();
+        // ------------------------------
+        // MutationObserver auto-fix
+        // ------------------------------
+        startObserver() {
+            this._observer = new MutationObserver(() => {
+                if (!document.getElementById("wf-header-button")) {
+                    console.log("[WF Drawer] Button missing → restoring");
+                    this.createOverlayButton();
                 }
-                const drawer = document.getElementById("wf-drawer");
-                if (!drawer) {
-                    console.log("[WF Drawer] Drawer missing → injectDrawer()");
-                    this.injectDrawer();
+                if (!document.getElementById("wf-drawer")) {
+                    console.log("[WF Drawer] Drawer missing → restoring");
+                    this.createDrawer();
                 }
             });
 
-            observer.observe(document.body, {
+            this._observer.observe(document.body, {
                 childList: true,
                 subtree: true
             });
         }
 
-        injectButton() {
-            if (document.getElementById("wf-header-button")) {
-                console.log("[WF Drawer] injectButton() called but button already exists");
-                return;
-            }
+        // ----------------------------------
+        // CREATE FIXED OVERLAY BUTTON
+        // ----------------------------------
+        createOverlayButton() {
+            if (document.getElementById("wf-header-button")) return;
 
-            console.log("[WF Drawer] injectButton() creating button");
+            console.log("[WF Drawer] Creating overlay button");
 
             const btn = document.createElement("div");
             btn.id = "wf-header-button";
+            btn.style.position = "fixed";
+            btn.style.zIndex = "999999";
 
+            // bear img
             const img = document.createElement("img");
             img.id = "wf-bear-icon";
-            img.src = "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/Bear-head.png";
+            img.src =
+                "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/Bear-head.png";
 
             btn.appendChild(img);
 
-            // Debounce to avoid double-toggles
-            let locked = false;
+            // Always toggle drawer
             btn.addEventListener("click", () => {
-                if (locked) return;
-                locked = true;
-
-                console.log("[WF BUTTON] CLICK fired → toggle()");
+                console.log("[WF BUTTON] click → toggle()");
                 this.toggle();
-
-                setTimeout(() => {
-                    locked = false;
-                }, 200);
             });
 
-            document.body.appendChild(btn);
+            document.documentElement.appendChild(btn); // <-- overlay root (not body)
         }
 
-        injectDrawer() {
-            if (document.getElementById("wf-drawer")) {
-                console.log("[WF Drawer] injectDrawer() called but drawer already exists");
-                return;
-            }
+        // ----------------------------------
+        // CREATE DRAWER
+        // ----------------------------------
+        createDrawer() {
+            if (document.getElementById("wf-drawer")) return;
 
-            console.log("[WF Drawer] injectDrawer() creating drawer");
+            console.log("[WF Drawer] Creating drawer");
 
             const drawer = document.createElement("div");
             drawer.id = "wf-drawer";
 
-            // placeholder content for now so you can see it
-            drawer.textContent = "WarFather drawer ready…";
-
-            document.body.appendChild(drawer);
+            document.documentElement.appendChild(drawer);
         }
 
+        // ----------------------------------
+        // TOGGLE DRAWER OPEN/CLOSE
+        // ----------------------------------
         toggle() {
             const drawer = document.getElementById("wf-drawer");
             const btn = document.getElementById("wf-header-button");
 
-            if (!drawer || !btn) {
-                console.log("[WF Drawer] toggle() called but elements missing");
-                return;
-            }
+            if (!drawer || !btn) return;
 
             this.isOpen = !this.isOpen;
 
@@ -111,5 +108,4 @@
     }
 
     window.WarfatherDrawer = new WarfatherDrawer();
-
 })();
