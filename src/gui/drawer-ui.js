@@ -8,57 +8,46 @@
 
         constructor() {
             this.isOpen = false;
-            this.buttonReady = false;
         }
 
         init() {
-            console.log("[WF Drawer] Loaded");
+            console.log("[WF Drawer] init() called");
 
-            this.waitForStableDOM(() => {
-                this.injectButton();
-                this.injectDrawer();
-                this.observeForRemoval();
-            });
+            this.injectButton();
+            this.injectDrawer();
+            this.observeForRemoval();
+
+            console.log("[WF Drawer] init() completed");
         }
 
-        // Wait until Torn's header stops rebuilding
-        waitForStableDOM(callback) {
-            let last = document.body.innerHTML.length;
-            let count = 0;
-
-            const timer = setInterval(() => {
-                const now = document.body.innerHTML.length;
-
-                if (now === last) count++;
-                else count = 0;
-
-                last = now;
-
-                // 3 stable frames = DOM has stopped changing
-                if (count >= 3) {
-                    clearInterval(timer);
-                    callback();
-                }
-            }, 120);
-        }
-
+        // Watch for Torn wiping the elements and reinsert if missing
         observeForRemoval() {
             const observer = new MutationObserver(() => {
-                if (!document.getElementById("wf-header-button")) {
-                    console.log("[WF Drawer] Button missing → Reinserting");
+                const btn = document.getElementById("wf-header-button");
+                if (!btn) {
+                    console.log("[WF Drawer] Button missing → reinjectButton()");
                     this.injectButton();
                 }
-                if (!document.getElementById("wf-drawer")) {
-                    console.log("[WF Drawer] Drawer missing → Reinserting");
+                const drawer = document.getElementById("wf-drawer");
+                if (!drawer) {
+                    console.log("[WF Drawer] Drawer missing → injectDrawer()");
                     this.injectDrawer();
                 }
             });
 
-            observer.observe(document.body, { childList: true, subtree: true });
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         }
 
         injectButton() {
-            if (document.getElementById("wf-header-button")) return;
+            if (document.getElementById("wf-header-button")) {
+                console.log("[WF Drawer] injectButton() called but button already exists");
+                return;
+            }
+
+            console.log("[WF Drawer] injectButton() creating button");
 
             const btn = document.createElement("div");
             btn.id = "wf-header-button";
@@ -69,23 +58,37 @@
 
             btn.appendChild(img);
 
-            // fix double toggle by debouncing click
-            let lock = false;
+            // Debounce to avoid double-toggles
+            let locked = false;
             btn.addEventListener("click", () => {
-                if (lock) return;
-                lock = true;
+                if (locked) return;
+                locked = true;
+
+                console.log("[WF BUTTON] CLICK fired → toggle()");
                 this.toggle();
-                setTimeout(() => lock = false, 180);
+
+                setTimeout(() => {
+                    locked = false;
+                }, 200);
             });
 
             document.body.appendChild(btn);
         }
 
         injectDrawer() {
-            if (document.getElementById("wf-drawer")) return;
+            if (document.getElementById("wf-drawer")) {
+                console.log("[WF Drawer] injectDrawer() called but drawer already exists");
+                return;
+            }
+
+            console.log("[WF Drawer] injectDrawer() creating drawer");
 
             const drawer = document.createElement("div");
             drawer.id = "wf-drawer";
+
+            // placeholder content for now so you can see it
+            drawer.textContent = "WarFather drawer ready…";
+
             document.body.appendChild(drawer);
         }
 
@@ -93,14 +96,17 @@
             const drawer = document.getElementById("wf-drawer");
             const btn = document.getElementById("wf-header-button");
 
-            if (!drawer || !btn) return;
+            if (!drawer || !btn) {
+                console.log("[WF Drawer] toggle() called but elements missing");
+                return;
+            }
 
             this.isOpen = !this.isOpen;
 
             drawer.classList.toggle("wf-open", this.isOpen);
             btn.classList.toggle("wf-open", this.isOpen);
 
-            console.log("[WF Drawer] Toggled:", this.isOpen);
+            console.log("[WF Drawer] Drawer toggled:", this.isOpen);
         }
     }
 
