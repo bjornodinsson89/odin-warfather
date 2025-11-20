@@ -131,3 +131,5 @@ export class WarfatherWarTab {
         });
     }
 }
+
+window.WarfatherWarTab = WarfatherWarTab;
