@@ -1,10 +1,7 @@
 (function () {
     'use strict';
 
-    if (window.__WF_DRAWER_LOADED__) {
-        if (window.WF_DEBUG) WF_DEBUG('drawer-ui.js already loaded, skipping');
-        return;
-    }
+    if (window.__WF_DRAWER_LOADED__) return;
     window.__WF_DRAWER_LOADED__ = true;
 
     class WarfatherDrawer {
@@ -13,65 +10,83 @@
         }
 
         init() {
-            if (window.WF_DEBUG) WF_DEBUG('WarfatherDrawer.init()');
-            if (document.getElementById('wf-drawer')) {
-                if (window.WF_DEBUG) WF_DEBUG('wf-drawer already exists in DOM');
-                return;
-            }
-
-            this.injectButton();
+            this.injectOverlayButton();
             this.injectDrawer();
-
-            if (window.WF_DEBUG) WF_DEBUG('WarfatherDrawer.init finished');
         }
 
-        injectButton() {
-            if (window.WF_DEBUG) WF_DEBUG('injectButton()');
+        // =========================================================
+        // 1. OVERLAY BUTTON (cannot be deleted by Torn)
+        // =========================================================
+        injectOverlayButton() {
+            const btn = document.createElement("div");
+            btn.id = "wf-overlay-button";
 
-            const btn = document.createElement('div');
-            btn.id = 'wf-header-btn';
-            btn.className = 'wf-header-button';
-            btn.title = 'Open WarFather';
+            btn.style.cssText = `
+                position: fixed !important;
+                top: 65px !important;
+                left: 12px !important;
+                width: 42px !important;
+                height: 42px !important;
+                background: rgba(0,0,0,0.85) !important;
+                border: 2px solid #e33 !important;
+                border-radius: 8px !important;
+                z-index: 999999999 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                cursor: pointer !important;
+            `;
 
-            btn.addEventListener('click', () => {
-                if (window.WF_DEBUG) WF_DEBUG('Header button clicked');
-                this.toggle();
-            });
+            // Using your bear emblem
+            btn.innerHTML = `
+                <img src="https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/bear.png"
+                    style="width: 26px; height: 26px; opacity: 0.9;">
+            `;
+
+            // Tap → toggle drawer
+            btn.addEventListener("click", () => this.toggle());
 
             document.body.appendChild(btn);
         }
 
+        // =========================================================
+        // 2. Drawer panel
+        // =========================================================
         injectDrawer() {
-            if (window.WF_DEBUG) WF_DEBUG('injectDrawer()');
+            const drawer = document.createElement("div");
+            drawer.id = "wf-drawer";
 
-            const drawer = document.createElement('div');
-            drawer.id = 'wf-drawer';
-            drawer.className = 'wf-drawer';
+            drawer.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 330px !important;
+                height: 100vh !important;
+                background: rgba(15,15,15,0.96) !important;
+                border-right: 2px solid #a00 !important;
+                transform: translateX(-340px);
+                transition: transform 0.25s ease;
+                z-index: 999999998 !important;
+            `;
 
-            // simple placeholder content so we SEE it when it opens
             drawer.innerHTML = `
-                <div class="wf-drawer-inner" style="padding:10px;color:#fff;">
-                    <strong>WarFather drawer test</strong><br>
-                    If you can read this, the drawer is working.
-                </div>
+                <div style="padding:20px;color:white;">Warfather Drawer Active</div>
             `;
 
             document.body.appendChild(drawer);
         }
 
         toggle() {
-            const drawer = document.getElementById('wf-drawer');
-            if (!drawer) {
-                if (window.WF_DEBUG) WF_DEBUG('toggle() called but wf-drawer is missing');
-                return;
-            }
+            const drawer = document.getElementById("wf-drawer");
+            if (!drawer) return;
 
             this.isOpen = !this.isOpen;
-            drawer.classList.toggle('wf-open', this.isOpen);
-
-            if (window.WF_DEBUG) WF_DEBUG('Drawer toggled → ' + (this.isOpen ? 'OPEN' : 'CLOSED'));
+            drawer.style.transform = this.isOpen
+                ? "translateX(0)"
+                : "translateX(-340px)";
         }
     }
 
     window.WarfatherDrawer = new WarfatherDrawer();
+
 })();
