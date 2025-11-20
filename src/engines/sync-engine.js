@@ -205,4 +205,12 @@ class WarfatherSync {
    EXPORT
    ============================================================ */
 
+updateWarState(stateObj) {
+        const fID = this.state.factionID;
+        const ref = this.db.ref(`factions/${fID}/war/state`);
+        return ref.set(stateObj);
+    }
+}
+
+// export to global scope
 window.WarfatherSync = WarfatherSync;
