@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         ODIN WARFATHER
 // @namespace    https://github.com/bjornodinsson89/odin-warfather
-// @version      1.0.0
-// @description  Faction War Engine
+// @version      1.0.3
+// @description  Faction War Engine for Torn City — War, Chain, Faction Hub, Targets, Console, Sync Engine, Firebase, SmartAPI
 // @author       BjornOdinsson89
 // @match        https://www.torn.com/*
 // @match        https://www.torn.com/*?*
@@ -87,8 +87,7 @@
 
         window.WF_ENGINES = { sync, api, faction };
 
-        window.OdinWarGUI.init();
-        window.WarfatherGUI.init();
+        // GUI auto-instantiates in its own module (no .init() calls)
 
         createTabs(sync, api, faction);
 
