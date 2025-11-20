@@ -7,7 +7,6 @@
 // @match        https://www.torn.com/*
 // @updateURL    https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/odin-warfather.user.js
 // @downloadURL  https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/odin-warfather.user.js
-//
 // @grant        GM_addStyle
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -15,28 +14,22 @@
 // @grant        GM_getResourceText
 // @grant        GM_xmlhttpRequest
 // @run-at       document-end
-//
 // @resource     wfCSS https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/odin-warfather.css
 // @resource     drawerCSS https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/drawer-ui.css
-//
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/sync-engine.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/smartapi.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/engines/faction-engine.js
-//
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/odin-gui.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/drawer-ui.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/key-panel.js
-//
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/dashboard-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/faction-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/war-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/chain-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/targets-tab.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/tabs/console-tab.js
-//
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/src/gui/odin-gui-integrator.js
 // ==/UserScript==
-
 
 (function warfatherBootstrap() {
 
