@@ -5,6 +5,7 @@
 // @description  Auto-updater loader for WarFather
 // @author       BjornOdinsson89
 // @match        https://www.torn.com/*
+// @match.       https://www2.torn.com/*
 // @updateURL    https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/odin-warfather-loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/odin-warfather-loader.user.js
 // @require      https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/odin-warfather.user.js
