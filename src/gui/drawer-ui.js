@@ -15,45 +15,57 @@
         }
 
         init() {
-            console.log("[WF Drawer] init() running");
+            console.log("[WF Drawer] init running");
 
-            this.injectOverlayButton();
+            this.injectButton();
             this.injectDrawer();
 
-            console.log("[WF Drawer] init() completed");
+            console.log("[WF Drawer] init COMPLETE");
         }
 
         // ---------------------------------------
-        // OVERLAY BUTTON (untouchable by Torn)
+        // SAFE BUTTON — TOP MIDDLE OF PAGE
         // ---------------------------------------
-        injectOverlayButton() {
+        injectButton() {
             const btn = document.createElement("div");
             btn.id = "wf-overlay-button";
 
             btn.style.cssText = `
                 position: fixed !important;
-                top: 70px !important;
-                left: 12px !important;
-                width: 44px !important;
-                height: 44px !important;
-                background: rgba(0,0,0,0.88) !important;
-                border: 2px solid #d22 !important;
-                border-radius: 8px !important;
-                z-index: 2147483647 !important;
+                top: 10px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+
+                width: 60px !important;
+                height: 60px !important;
+
+                background: rgba(0,0,0,0.9) !important;
+                border: 3px solid #ff4444 !important;
+                border-radius: 50% !important;
+
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
-                cursor: pointer !important;
+
+                z-index: 2147483647 !important;
+                pointer-events: auto !important;
+                touch-action: manipulation !important;
             `;
 
             btn.innerHTML = `
-                <img src="https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/bear.png"
-                    style="width:28px;height:28px;opacity:0.95;">
+                <span style="color:#ff4444;font-size:26px;font-weight:bold;">
+                    ☰
+                </span>
             `;
 
-            // DEBUG TAP
+            // MULTI-METHOD LISTENERS (mobile safe)
             btn.addEventListener("click", () => {
-                console.log("[WF Button] CLICK detected → toggle()");
+                console.log("[WF BUTTON] CLICK fired → toggle()");
+                this.toggle();
+            });
+
+            btn.addEventListener("touchstart", () => {
+                console.log("[WF BUTTON] TOUCH fired → toggle()");
                 this.toggle();
             });
 
@@ -73,15 +85,21 @@
                 left: 0 !important;
                 width: 330px !important;
                 height: 100vh !important;
+
                 background: rgba(15,15,15,0.97) !important;
                 border-right: 2px solid #a00 !important;
+
                 transform: translateX(-340px);
                 transition: transform 0.25s ease-out;
+
                 z-index: 2147483646 !important;
+                pointer-events: auto !important;
             `;
 
             drawer.innerHTML = `
-                <div style="padding:20px;color:white;">Drawer active</div>
+                <div style="padding:20px;color:white;">
+                    Drawer Loaded (TEST MODE)
+                </div>
             `;
 
             document.body.appendChild(drawer);
@@ -92,14 +110,14 @@
             if (!drawer) return;
 
             this.isOpen = !this.isOpen;
-
             drawer.style.transform = this.isOpen
                 ? "translateX(0)"
                 : "translateX(-340px)";
+
+            console.log("[WF Drawer] Drawer toggled:", this.isOpen);
         }
     }
 
-    // AUTO INIT
     window.WarfatherDrawer = new WarfatherDrawer();
     window.WarfatherDrawer.init();
 
