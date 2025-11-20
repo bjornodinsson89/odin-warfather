@@ -95,3 +95,5 @@ export class WarfatherFactionTab {
         return "#999";
     }
 }
+
+window.WarfatherFactionTab = WarfatherFactionTab;
