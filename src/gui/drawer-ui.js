@@ -1,12 +1,8 @@
-// ============================================================
-// ODIN WARFATHER — FINAL STABLE DRAWER MODULE
-// ============================================================
+// ===============================
+// ODIN WARFATHER — Drawer UI
+// ===============================
 
 (function () {
-    'use strict';
-
-    if (window.__WF_DRAWER_LOADED__) return;
-    window.__WF_DRAWER_LOADED__ = true;
 
     class WarfatherDrawer {
 
@@ -15,102 +11,110 @@
         }
 
         init() {
-            if (document.getElementById("wf-drawer")) return;
+            // Safety: don't build twice
+            if (document.getElementById("wf-drawer")) {
+                console.log("[WF Drawer] Drawer already exists, skipping init");
+                return;
+            }
 
             this.injectButton();
             this.injectDrawer();
 
-            if (window.WF_LOG) WF_LOG("[Drawer] init complete");
+            console.log("[WF Drawer] init() finished");
         }
 
-        // ============================================================
-        //     FLOATING BEAR BUTTON (TOP MIDDLE)
-        // ============================================================
+        // ------------------------------------------
+        // Create floating button (bear icon)
+        // ------------------------------------------
         injectButton() {
-            const btn = document.createElement("img");
+            console.log("[WF Drawer] injectButton()");
+
+            const btn = document.createElement("div");
             btn.id = "wf-header-button";
 
-            // your bear logo
-            btn.src = "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/media/bear-head.png";
+            // Use your GitHub-hosted bear image
+            btn.innerHTML = `
+                <img src="https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/Bear-head.png"
+                    style="width: 26px; height: 26px; opacity: 0.9;">
+            `;
 
             btn.style.cssText = `
                 position: fixed;
-                top: 10px;
+                top: 6px;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 52px;
-                height: 52px;
-                z-index: 2147483647;
-                cursor: pointer;
-                opacity: 0.92;
-                pointer-events: auto;
+                width: 42px !important;
+                height: 42px !important;
+                background: transparent !important;
+                border: none !important;
+                border-radius: 50% !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 999999;
             `;
 
-            // 🚨 IMPORTANT: ONLY ONE EVENT → NO DOUBLE TOGGLE
-            btn.addEventListener("click", e => {
-                e.stopPropagation();
-                this.toggle();
-            });
+            // Tap → toggle drawer
+            btn.addEventListener("click", () => this.toggle());
 
             document.body.appendChild(btn);
-
-            if (window.WF_LOG) WF_LOG("[Drawer] Button injected");
         }
 
-        // ============================================================
-        //     SMALLER DRAWER (CENTERED VERTICALLY)
-        // ============================================================
+        // ------------------------------------------
+        // Drawer panel
+        // ------------------------------------------
         injectDrawer() {
+            console.log("[WF Drawer] injectDrawer()");
 
             const drawer = document.createElement("div");
             drawer.id = "wf-drawer";
-
             drawer.style.cssText = `
                 position: fixed;
-                top: 20%;
-                left: -260px;   /* offscreen position */
-                width: 260px;   /* 30% smaller width */
-                height: 60%;    /* 40% smaller height */
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 330px;
                 background: rgba(20,20,20,0.96);
                 border-right: 2px solid #444;
-                border-radius: 0 12px 12px 0;
-                box-shadow: 0 0 12px rgba(0,0,0,0.8);
-                overflow-y: auto;
-                transition: left .28s ease-out;
-                z-index: 2147483646;
-                pointer-events: auto;
+                transform: translateX(-360px);
+                transition: transform 0.25s ease;
+                z-index: 99998;
             `;
 
-            // Prevent Torn Mobile from intercepting drawer interactions
-            drawer.addEventListener("touchstart", e => e.stopPropagation(), true);
-            drawer.addEventListener("touchmove", e => e.stopPropagation(), true);
-            drawer.addEventListener("click", e => e.stopPropagation(), true);
+            drawer.innerHTML = `
+                <div style="padding: 10px; color: #eee; font-family: monospace;">
+                    <h2 style="margin:0 0 8px 0; font-size: 16px;">WarFather Drawer</h2>
+                    <p style="font-size: 12px; opacity: 0.8;">
+                        Drawer test panel — layer 2.
+                    </p>
+                </div>
+            `;
 
             document.body.appendChild(drawer);
 
-            if (window.WF_LOG) WF_LOG("[Drawer] Drawer injected");
+            console.log("[WF Drawer] Drawer init() completed");
         }
 
-        // ============================================================
-        //     TOGGLE HANDLER (NOW 100% STABLE)
-        // ============================================================
+        // ------------------------------------------
+        // Toggle open/close
+        // ------------------------------------------
         toggle() {
             const drawer = document.getElementById("wf-drawer");
             if (!drawer) {
-                if (window.WF_LOG) WF_LOG("[Drawer] toggle() FAILED – no drawer");
+                console.log("[WF Drawer] toggle() called but drawer missing");
                 return;
             }
 
             this.isOpen = !this.isOpen;
+            drawer.style.transform = this.isOpen
+                ? "translateX(0)"
+                : "translateX(-360px)";
 
-            drawer.style.left = this.isOpen
-                ? "0px"
-                : "-260px";
-
-            if (window.WF_LOG)
-                WF_LOG(`[Drawer] Toggled → ${this.isOpen ? "OPEN" : "CLOSED"}`);
+            console.log("[WF Drawer] Drawer toggled:", this.isOpen);
         }
     }
 
+    // Expose globally
     window.WarfatherDrawer = new WarfatherDrawer();
+
 })();
