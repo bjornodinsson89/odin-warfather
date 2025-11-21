@@ -1,50 +1,82 @@
-/* ============================================
-   FINAL — BUTTON ANCHORED + CLEAN TRANSPARENCY
-   ============================================ */
+/* ============================================================
+   ODIN WARFATHER — Drawer UI Styling
+   ============================================================ */
+
+/* --------------------------------------------
+   BUTTON — Shared
+-------------------------------------------- */
 #wf-header-button {
-    position: fixed !important;
-
-    top: 3px !important;
-    left: calc(50% - 6px) !important;
-    transform: translateX(-50%) !important;
-
-    width: clamp(30px, 6vw, 56px) !important;
-    height: clamp(30px, 6vw, 56px) !important;
-
-    z-index: 1000000 !important;
+    position: absolute !important;
+    z-index: 999999 !important;
     cursor: pointer !important;
     padding: 0 !important;
     margin: 0 !important;
-
     background: transparent !important;
     border: none !important;
-
     user-select: none !important;
+
+    width: clamp(35px, 6vw, 70px) !important;
+    height: clamp(35px, 6vw, 70px) !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* BEAR ICON — TRUE TRANSPARENCY FIX */
+/* MOBILE — center top */
+#wf-header-button.mobile {
+    top: 6px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+/* DESKTOP — right of TornTools button */
+#wf-header-button.desktop {
+    top: 8px !important;
+    right: 120px !important;
+}
+
+/* Button Icon */
 #wf-bear-icon {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important;
 
-    background: none !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    box-shadow: none !important;
-
+    background: transparent !important;
     mix-blend-mode: normal !important;
-    image-rendering: crisp-edges !important;
-
-    -webkit-mask-image: none !important;
-    mask-image: none !important;
-    filter: none !important;
-
     pointer-events: none !important;
 }
 
-/* Glow when drawer open */
+/* Glow on open */
 #wf-header-button.wf-open #wf-bear-icon {
-    filter: drop-shadow(0 0 14px rgba(255, 50, 50, 1))
-            drop-shadow(0 0 8px rgba(255, 0, 0, 0.7)) !important;
+    filter: drop-shadow(0 0 16px rgba(255, 40, 40, 0.9));
+    transition: filter 0.25s ease-out;
+}
+
+/* --------------------------------------------
+   DRAWER PANEL
+-------------------------------------------- */
+#wf-drawer {
+    position: fixed !important;
+    top: 50% !important;
+    left: 0;
+
+    transform: translate(-110%, -50%);
+    width: 70vw !important;
+    max-width: 320px !important;
+    height: 60vh !important;
+
+    background: rgba(20, 20, 20, 0.95);
+    border-right: 2px solid #333;
+    border-radius: 14px !important;
+
+    opacity: 0;
+    transition: transform 0.28s ease, opacity 0.28s ease;
+    z-index: 999998 !important;
+}
+
+/* Drawer visible */
+#wf-drawer.wf-open {
+    transform: translate(0%, -50%);
+    opacity: 1;
 }
