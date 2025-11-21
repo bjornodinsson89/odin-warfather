@@ -1,14 +1,9 @@
 // ============================================================
-// ODIN WARFATHER — Drawer Integrator v2 (FINAL)
-// Author: BjornOdinsson89
-// Purpose:
-//    Connect all tabs + engines to the NEW Drawer UI only.
-//    Removes dependency on old OdinWarGUI.
+// ODIN WARFATHER — Drawer Integrator 
 // ============================================================
 
-(function() {
+(function () {
 
-    // Wait until drawer is loaded
     function waitForDrawer() {
         if (!window.WarfatherDrawer) {
             return setTimeout(waitForDrawer, 100);
@@ -24,22 +19,21 @@
             return;
         }
 
-        console.log("[WF Integrator] Drawer detected:", drawer);
+        console.log("[WF Integrator] Drawer detected");
 
-        // -----------------------------
-        // Add tab containers to drawer
-        // -----------------------------
+        // --- FULL TAB SET ---
         drawer.addTab("dashboard", "Dashboard");
-        drawer.addTab("faction",   "Faction");
-        drawer.addTab("war",       "War");
-        drawer.addTab("chain",     "Chain");
-        drawer.addTab("targets",   "Targets");
-        drawer.addTab("console",   "Console");
+        drawer.addTab("faction", "Faction");
+        drawer.addTab("war", "War");
+        drawer.addTab("chain", "Chain");
+        drawer.addTab("targets", "Targets");
+        drawer.addTab("factionTargets", "Faction Targets");
+        drawer.addTab("settings", "Settings");
+        drawer.addTab("console", "Console");
 
         console.log("[WF Integrator] Tabs attached.");
     }
 
-    // Auto-start integrator
     waitForDrawer();
 
 })();
