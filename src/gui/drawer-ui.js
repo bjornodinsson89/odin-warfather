@@ -1,6 +1,6 @@
-// ======================================================================
-// ODIN WARFATHER — Drawer UI
-// ======================================================================
+// ============================================================
+// ODIN WARFATHER — Drawer UI 
+// ============================================================
 
 (function () {
 
@@ -8,28 +8,36 @@
 
         constructor() {
             this.isOpen = false;
+            this.tabs = {};
+            this.activeTab = null;
+            this._observer = null;
         }
 
         init() {
-            console.log("[WF Drawer] init() called");
-
             this.injectButton();
-            this.injectDrawer();
-
-            console.log("[WF Drawer] init() complete");
+            this.insertDrawer();
+            this.insertTabBar();
+            this.startObserver();
         }
 
+        // -------------------------------------------------------
+        // Reinsertion watcher
+        // -------------------------------------------------------
+        startObserver() {
+            this._observer = new MutationObserver(() => {
+                if (!document.getElementById("wf-header-button")) this.injectButton();
+                if (!document.getElementById("wf-drawer")) this.insertDrawer();
+                if (!document.getElementById("wf-tab-bar")) this.insertTabBar();
+            });
 
-        // ---------------------------------------------------------
-        // BUTTON
-        // ---------------------------------------------------------
+            this._observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        // -------------------------------------------------------
+        // Button (bear icon)
+        // -------------------------------------------------------
         injectButton() {
-            if (document.getElementById("wf-header-button")) {
-                console.log("[WF Drawer] Button already exists");
-                return;
-            }
-
-            console.log("[WF Drawer] injectButton() creating button");
+            if (document.getElementById("wf-header-button")) return;
 
             const btn = document.createElement("div");
             btn.id = "wf-header-button";
@@ -39,60 +47,104 @@
             img.src = "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/Bear-head.png";
 
             btn.appendChild(img);
-
-            btn.addEventListener("click", () => {
-                console.log("[WF Drawer] Button click → toggle()");
-                this.toggle();
-            });
+            btn.addEventListener("click", () => this.toggle());
 
             document.body.appendChild(btn);
         }
 
-
-        // ---------------------------------------------------------
-        // DRAWER
-        // ---------------------------------------------------------
-        injectDrawer() {
-            if (document.getElementById("wf-drawer")) {
-                console.log("[WF Drawer] Drawer already exists");
-                return;
-            }
-
-            console.log("[WF Drawer] injectDrawer() creating drawer");
+        // -------------------------------------------------------
+        // Drawer panel
+        // -------------------------------------------------------
+        insertDrawer() {
+            if (document.getElementById("wf-drawer")) return;
 
             const drawer = document.createElement("div");
             drawer.id = "wf-drawer";
 
+            // content container inside drawer
+            const content = document.createElement("div");
+            content.id = "wf-tab-content";
+
+            drawer.appendChild(content);
             document.body.appendChild(drawer);
         }
 
+        // -------------------------------------------------------
+        // Tab bar container
+        // -------------------------------------------------------
+        insertTabBar() {
+            if (document.getElementById("wf-tab-bar")) return;
 
-        // ---------------------------------------------------------
-        // TOGGLE SYSTEM
-        // ---------------------------------------------------------
+            const bar = document.createElement("div");
+            bar.id = "wf-tab-bar";
+
+            const drawer = document.getElementById("wf-drawer");
+            if (drawer) drawer.prepend(bar);
+        }
+
+        // -------------------------------------------------------
+        // Add a new tab (called from integrator)
+        // -------------------------------------------------------
+        addTab(name, label) {
+            if (this.tabs[name]) return; // already exists
+
+            const bar = document.getElementById("wf-tab-bar");
+            const contentArea = document.getElementById("wf-tab-content");
+
+            // tab button
+            const btn = document.createElement("div");
+            btn.className = "wf-tab-button";
+            btn.textContent = label;
+            btn.dataset.tab = name;
+            btn.addEventListener("click", () => this.switchTab(name));
+
+            bar.appendChild(btn);
+
+            // tab content container
+            const pane = document.createElement("div");
+            pane.className = "wf-tab-pane";
+            pane.id = `wf-tab-${name}`;
+            pane.style.display = "none";
+
+            contentArea.appendChild(pane);
+
+            this.tabs[name] = { btn, pane };
+
+            // auto-activate first tab
+            if (!this.activeTab) this.switchTab(name);
+        }
+
+        // -------------------------------------------------------
+        // Switch active tab
+        // -------------------------------------------------------
+        switchTab(name) {
+            if (!this.tabs[name]) return;
+
+            // hide all
+            Object.values(this.tabs).forEach(t => {
+                t.pane.style.display = "none";
+                t.btn.classList.remove("active");
+            });
+
+            // activate chosen
+            this.tabs[name].pane.style.display = "block";
+            this.tabs[name].btn.classList.add("active");
+            this.activeTab = name;
+        }
+
+        // -------------------------------------------------------
+        // Toggle drawer
+        // -------------------------------------------------------
         toggle() {
+            this.isOpen = !this.isOpen;
+
             const drawer = document.getElementById("wf-drawer");
             const btn = document.getElementById("wf-header-button");
 
-            if (!drawer || !btn) {
-                console.log("[WF Drawer] toggle() aborted — missing elements");
-                return;
-            }
-
-            this.isOpen = !this.isOpen;
-
-            if (this.isOpen) {
-                drawer.classList.add("wf-open");
-                btn.classList.add("wf-open");
-            } else {
-                drawer.classList.remove("wf-open");
-                btn.classList.remove("wf-open");
-            }
-
-            console.log("[WF Drawer] Drawer toggled:", this.isOpen);
+            drawer.classList.toggle("wf-open", this.isOpen);
+            btn.classList.toggle("wf-open", this.isOpen);
         }
     }
 
     window.WarfatherDrawer = new WarfatherDrawer();
-
 })();
