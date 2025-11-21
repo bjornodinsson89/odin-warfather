@@ -1,3 +1,6 @@
+// ===============================
+// ODIN WARFATHER — Drawer UI
+// ===============================
 (function () {
 
     class WarfatherDrawer {
@@ -9,38 +12,30 @@
 
         init() {
             console.log("[WF Drawer] init() called");
-
             this.injectButton();
-            this.injectDrawer();
+            this.insertDrawer();
             this.startObserver();
-
             console.log("[WF Drawer] init() complete");
         }
 
-        /* -----------------------------
-           Auto-repair if Torn removes UI
-        ----------------------------- */
         startObserver() {
             this._observer = new MutationObserver(() => {
-
                 if (!document.getElementById("wf-header-button")) {
-                    console.log("[WF Drawer] Button missing → reinserting");
+                    console.warn("[WF Drawer] Button removed → reinserting");
                     this.injectButton();
                 }
-
                 if (!document.getElementById("wf-drawer")) {
-                    console.log("[WF Drawer] Drawer missing → reinserting");
-                    this.injectDrawer();
+                    console.warn("[WF Drawer] Drawer removed → reinserting");
+                    this.insertDrawer();
                 }
-
             });
 
-            this._observer.observe(document.body, { childList: true, subtree: true });
+            this._observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         }
 
-        /* -----------------------------
-           Button
-        ----------------------------- */
         injectButton() {
             if (document.getElementById("wf-header-button")) return;
 
@@ -48,40 +43,40 @@
 
             const btn = document.createElement("div");
             btn.id = "wf-header-button";
+            btn.className = window.innerWidth < 900 ? "mobile" : "desktop";
 
             const img = document.createElement("img");
             img.id = "wf-bear-icon";
             img.src = "https://raw.githubusercontent.com/bjornodinsson89/odin-warfather/main/assets/Bear-head.png";
 
             btn.appendChild(img);
-            btn.addEventListener("click", () => this.toggle());
+
+            btn.addEventListener("click", () => {
+                console.log("[WF Drawer] Button pressed → toggle()");
+                this.toggle();
+            });
 
             document.body.appendChild(btn);
         }
 
-        /* -----------------------------
-           Drawer
-        ----------------------------- */
-        injectDrawer() {
+        insertDrawer() {
             if (document.getElementById("wf-drawer")) return;
 
             console.log("[WF Drawer] injectDrawer() creating drawer");
 
             const drawer = document.createElement("div");
             drawer.id = "wf-drawer";
-
             document.body.appendChild(drawer);
+
+            console.log("[WF Drawer] drawer exists:", !!drawer);
         }
 
-        /* -----------------------------
-           Toggle
-        ----------------------------- */
         toggle() {
             const drawer = document.getElementById("wf-drawer");
             const btn = document.getElementById("wf-header-button");
 
             if (!drawer || !btn) {
-                console.error("[WF Drawer] toggle() failed: elements missing");
+                console.error("[WF Drawer] toggle() failed → missing element");
                 return;
             }
 
