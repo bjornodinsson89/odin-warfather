@@ -1,67 +1,62 @@
-/* ================================
-   WARFATHER — Overlay Bear Button
-================================ */
+/* ============================================
+   ODIN WARFATHER — Drawer UI (CSS)
+   ============================================ */
 
-:root { --wf-css-loaded: 1;}
-
+/* Button */
 #wf-header-button {
     position: fixed !important;
-
-    top: 8px !important;
+    top: 6px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-
-    width: clamp(40px, 8vw, 70px) !important;
-    height: clamp(40px, 8vw, 70px) !important;
+    width: clamp(40px, 7vw, 72px) !important;
+    height: clamp(40px, 7vw, 72px) !important;
 
     z-index: 999999 !important;
     cursor: pointer !important;
-
     background: transparent !important;
-    border: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
+/* Bear icon */
 #wf-bear-icon {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important;
-    pointer-events: none !important;
-
     background: transparent !important;
+    pointer-events: none !important;
+    image-rendering: crisp-edges !important;
 }
 
 /* Glow when open */
 #wf-header-button.wf-open #wf-bear-icon {
-    filter: drop-shadow(0 0 12px rgba(255, 60, 60, 0.9));
-    transition: filter 0.2s ease-out;
+    filter: drop-shadow(0 0 12px rgba(255, 50, 50, 0.9));
 }
 
-/* ================================
-   Drawer Panel
-================================ */
-
+/* Drawer */
 #wf-drawer {
     position: fixed !important;
     top: 0;
     left: 0;
 
-    width: 65vw !important;
-    max-width: 300px !important;
-    height: 65vh !important;
+    width: 70vw !important;
+    max-width: 320px !important;
+    height: 60vh !important;
 
-    background: rgba(20, 20, 20, 0.96);
-    border-right: 2px solid #333;
-    border-radius: 0 14px 14px 0; /* rounded */
+    background: rgba(20,20,20,0.96);
+    border-right: 2px solid #222;
+    border-radius: 0 12px 12px 0;
 
     transform: translateX(-110%);
     transition: transform 0.25s ease, opacity 0.25s ease;
 
-    opacity: 0;
     z-index: 999998 !important;
+    opacity: 0;
 }
 
 #wf-drawer.wf-open {
-    transform: translateX(0%);
     opacity: 1;
+    transform: translateX(0%);
 }
