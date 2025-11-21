@@ -11,17 +11,31 @@
             this.tabs = {};
             this.activeTab = null;
             this._observer = null;
-        }
-
-        init() {
-            this.injectButton();
-            this.insertDrawer();
-            this.insertTabBar();
-            this.startObserver();
+            this.ready = false;
         }
 
         // -------------------------------------------------------
-        // Reinsertion watcher
+        // Initialize drawer safely
+        // -------------------------------------------------------
+        init() {
+            try {
+                this.injectButton();
+                this.insertDrawer();
+                this.insertTabBar();
+                this.startObserver();
+
+                // Mark drawer as fully ready
+                this.ready = true;
+                window.WarfatherDrawerReady = true;
+
+                console.log("[WF Drawer] Ready");
+            } catch (err) {
+                console.error("[WF Drawer] INIT ERROR:", err);
+            }
+        }
+
+        // -------------------------------------------------------
+        // Reinsertion watcher (Torn removes DOM nodes)
         // -------------------------------------------------------
         startObserver() {
             this._observer = new MutationObserver(() => {
@@ -61,7 +75,7 @@
             const drawer = document.createElement("div");
             drawer.id = "wf-drawer";
 
-            // content container inside drawer
+            // Content container
             const content = document.createElement("div");
             content.id = "wf-tab-content";
 
@@ -86,12 +100,20 @@
         // Add a new tab (called from integrator)
         // -------------------------------------------------------
         addTab(name, label) {
+            // Prevent attaching tabs before drawer is fully initialized
+            if (!this.ready) return;
+
             if (this.tabs[name]) return; // already exists
 
             const bar = document.getElementById("wf-tab-bar");
             const contentArea = document.getElementById("wf-tab-content");
 
-            // tab button
+            if (!bar || !contentArea) {
+                console.error("[WF Drawer] addTab() called before UI exists");
+                return;
+            }
+
+            // Tab button
             const btn = document.createElement("div");
             btn.className = "wf-tab-button";
             btn.textContent = label;
@@ -100,7 +122,7 @@
 
             bar.appendChild(btn);
 
-            // tab content container
+            // Tab content pane
             const pane = document.createElement("div");
             pane.className = "wf-tab-pane";
             pane.id = `wf-tab-${name}`;
@@ -110,30 +132,28 @@
 
             this.tabs[name] = { btn, pane };
 
-            // auto-activate first tab
+            // activate first tab automatically
             if (!this.activeTab) this.switchTab(name);
         }
 
         // -------------------------------------------------------
-        // Switch active tab
+        // Switch tab
         // -------------------------------------------------------
         switchTab(name) {
             if (!this.tabs[name]) return;
 
-            // hide all
             Object.values(this.tabs).forEach(t => {
                 t.pane.style.display = "none";
                 t.btn.classList.remove("active");
             });
 
-            // activate chosen
             this.tabs[name].pane.style.display = "block";
             this.tabs[name].btn.classList.add("active");
             this.activeTab = name;
         }
 
         // -------------------------------------------------------
-        // Toggle drawer
+        // Open/close drawer
         // -------------------------------------------------------
         toggle() {
             this.isOpen = !this.isOpen;
@@ -147,4 +167,5 @@
     }
 
     window.WarfatherDrawer = new WarfatherDrawer();
+
 })();
