@@ -1,82 +1,69 @@
 /* ============================================================
-   ODIN WARFATHER — Drawer UI Styling
-   ============================================================ */
+   ODIN WARFATHER — BUTTON
+============================================================ */
 
-/* --------------------------------------------
-   BUTTON — Shared
--------------------------------------------- */
 #wf-header-button {
-    position: absolute !important;
-    z-index: 999999 !important;
-    cursor: pointer !important;
+    position: fixed !important;
+    bottom: 14px !important;
+    left: 14px !important;
+
+    width: clamp(40px, 7vw, 70px) !important;
+    height: clamp(40px, 7vw, 70px) !important;
+
+    background: transparent !important;
     padding: 0 !important;
     margin: 0 !important;
-    background: transparent !important;
     border: none !important;
-    user-select: none !important;
 
-    width: clamp(35px, 6vw, 70px) !important;
-    height: clamp(35px, 6vw, 70px) !important;
+    z-index: 999999 !important;
+    cursor: pointer !important;
 
     display: flex !important;
-    align-items: center !important;
     justify-content: center !important;
+    align-items: center !important;
 }
 
-/* MOBILE — center top */
-#wf-header-button.mobile {
-    top: 6px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-}
-
-/* DESKTOP — right of TornTools button */
-#wf-header-button.desktop {
-    top: 8px !important;
-    right: 120px !important;
-}
-
-/* Button Icon */
-#wf-bear-icon {
+#wf-header-button img#wf-bear-icon {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important;
-
     background: transparent !important;
-    mix-blend-mode: normal !important;
     pointer-events: none !important;
 }
 
-/* Glow on open */
+/* Glow when drawer open */
 #wf-header-button.wf-open #wf-bear-icon {
-    filter: drop-shadow(0 0 16px rgba(255, 40, 40, 0.9));
+    filter: drop-shadow(0 0 22px rgba(255, 40, 40, 0.95));
     transition: filter 0.25s ease-out;
 }
 
-/* --------------------------------------------
-   DRAWER PANEL
--------------------------------------------- */
+
+/* ============================================================
+   ODIN WARFATHER — DRAWER PANEL
+============================================================ */
+
 #wf-drawer {
     position: fixed !important;
-    top: 50% !important;
-    left: 0;
+    top: 0 !important;
+    left: 0 !important;
 
-    transform: translate(-110%, -50%);
     width: 70vw !important;
     max-width: 320px !important;
-    height: 60vh !important;
+    height: 100vh !important;
 
-    background: rgba(20, 20, 20, 0.95);
-    border-right: 2px solid #333;
-    border-radius: 14px !important;
+    background: rgba(20, 20, 20, 0.95) !important;
+    border-right: 2px solid #333 !important;
+    border-radius: 0 8px 8px 0 !important;
 
-    opacity: 0;
+    transform: translateX(-110%) !important;
+    opacity: 0 !important;
+
     transition: transform 0.28s ease, opacity 0.28s ease;
     z-index: 999998 !important;
 }
 
 /* Drawer visible */
 #wf-drawer.wf-open {
-    transform: translate(0%, -50%);
-    opacity: 1;
+    transform: translateX(0%) !important;
+    opacity: 1 !important;
 }
